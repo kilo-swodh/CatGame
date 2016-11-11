@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CatGame</string>
+    <string name="choicce">难度选择</string>
+</resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#C0C0C0">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            style="@style/myTextView"
+            android:text="总步数:"/>
+        <TextView
+            android:id="@+id/score"
+
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:text="0步"/>
+    </LinearLayout>
+
+    <com.example.a45556.catgame.GameGround
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_option"
+            android:text="设置"
+            style="@style/Base.Widget.AppCompat.Button.Small"
+            android:layout_width="0dp"
+            android:layout_weight="618"
+            android:layout_height="wrap_content" />
+        <Button
+            android:text="重来"
+            android:id="@+id/btn_restart"
+            android:layout_width="0dp"
+            android:layout_weight="282"
+            android:layout_height="wrap_content"
+            style="@style/Base.Widget.AppCompat.Button.Small"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>
