@@ -17,6 +17,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static int diff;
     private static boolean doubleCat;
+    private static boolean allowMusic = true;
+
+    private Sounder sounder;
 
     public static int getDiff() {
         return diff;
@@ -48,6 +51,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOption.setOnClickListener(this);
         btnRestart = (Button)findViewById(R.id.btn_restart);
         btnRestart.setOnClickListener(new MyListener(GameGround.getGameGround()));
+        sounder = Sounder.getInstance(this);
+        if (allowMusic){
+            sounder.initSound();
+            sounder.startBgSound();
+            allowMusic = false;
+        }
     }
 
     @Override

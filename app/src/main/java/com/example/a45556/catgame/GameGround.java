@@ -39,9 +39,6 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private boolean justFirst;
     private Bitmap bmNO,bmOK,bmCat1,bg;
 
-    private Sounder sounder;
-
-
     public GameGround(Context context, AttributeSet attrs) {
         super(context, attrs);
         gameGround = this;
@@ -52,8 +49,6 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
         bmOK = BitmapFactory.decodeResource(getResources(),R.drawable.grass);
         bmCat1 = BitmapFactory.decodeResource(getResources(),R.drawable.cat1);
         bg = BitmapFactory.decodeResource(getResources(),R.drawable.bg);
-        //sounder = new Sounder(context);
-        //sounder.initSound();
         initGame();
     }
 
@@ -180,7 +175,6 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
                 allLine.put(nDot,i);
                 if (getDistance(nDot,i) > 0){
                     positive.add(nDot);
-
                 }
             }
         }
@@ -232,7 +226,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
 
     private void win(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("恭喜你,成功围住了神经猫\n你总共用了"+MainActivity.score+
+        builder.setMessage("恭喜你,成功围住了小猫\n你总共用了"+MainActivity.score+
                 "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff()));
         builder.setCancelable(false);
         builder.setNegativeButton("退出游戏", new DialogInterface.OnClickListener() {
@@ -319,7 +313,6 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
                 i++;
             }
         }
-        //sounder.startBgSound();
     }
 
     @Override
