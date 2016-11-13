@@ -38,6 +38,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private MyListener myListener;
     private boolean justFirst;
     private Bitmap bmNO,bmOK,bmCat1,bg;
+    private Sounder sounder;
 
     public GameGround(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,6 +50,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
         bmOK = BitmapFactory.decodeResource(getResources(),R.drawable.grass);
         bmCat1 = BitmapFactory.decodeResource(getResources(),R.drawable.cat1);
         bg = BitmapFactory.decodeResource(getResources(),R.drawable.bg);
+        sounder = Sounder.getInstance();
         initGame();
     }
 
@@ -217,17 +219,27 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private void lose(){
         failCount++;
         if (failCount == 4){
-            Toast.makeText(getContext(),"tip:点击下方设置可以调整难度",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),"tip:点击左下角可以调整难度",Toast.LENGTH_SHORT).show();
         }else{
+            sounder.startEndSound();
             Toast.makeText(getContext(),"You Lose",Toast.LENGTH_SHORT).show();
         }
         initGame();
     }
 
+    private int[] bestScore;
+
     private void win(){
+        MainActivity.saveBest();
+        bestScore = MainActivity.getBest();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        if (bestScore[MainActivity.getDiff()] == 87){
+            builder.setMessage("恭喜你,成功围住了小猫\n你总共用了"+MainActivity.score+
+                    "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff()));
+        }
         builder.setMessage("恭喜你,成功围住了小猫\n你总共用了"+MainActivity.score+
-                "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff()));
+                "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff())+
+                "\n该难度个人最佳成绩是"+bestScore[MainActivity.getDiff()]+"步");
         builder.setCancelable(false);
         builder.setNegativeButton("退出游戏", new DialogInterface.OnClickListener() {
             @Override
@@ -275,7 +287,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private void checkConfig(){
         switch (MainActivity.getDiff()){
             case 0:
-                BLOCKS = 16;
+                BLOCKS = 32;                //16
                 break;
             case 2:
                 BLOCKS = 7;

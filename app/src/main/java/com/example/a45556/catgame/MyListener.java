@@ -10,9 +10,11 @@ import android.view.View;
 public class MyListener implements View.OnTouchListener,View.OnClickListener{
     private int WIDTH,DEVIATION;
     private GameGround gameGround;
+    private Sounder sounder;
 
     public MyListener(GameGround gameGround){
         this.gameGround = gameGround;
+        sounder = Sounder.getInstance();
     }
     public void setWIDTH(int WIDTH){
         this.WIDTH = WIDTH;
@@ -24,6 +26,7 @@ public class MyListener implements View.OnTouchListener,View.OnClickListener{
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_UP:
                 int x,y;
+                sounder.startClickSound();
                 y = (int)((motionEvent.getY()- DEVIATION)/WIDTH);
                 if (y%2 == 0){
                     x = (int)((motionEvent.getX()-WIDTH/2)/WIDTH );
