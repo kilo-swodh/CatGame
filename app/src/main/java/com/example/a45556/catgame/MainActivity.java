@@ -2,19 +2,15 @@ package com.example.a45556.catgame;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     public static TextView tvScore;
-    private Button btnOption;
-    private Button btnRestart;
-    private Button btnStopMu;
+    private Button btnOption,btnRestart,btnStopMu;
     public static int score = 0;
 
     private static int diff;
@@ -23,8 +19,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static int norBest;
     public static int expBest;
 
-    private static boolean doubleCat;
-    private static boolean noBGM = true;
+    public static boolean doubleCat;
+    public static boolean BGM ;
 
     private Sounder sounder;
 
@@ -36,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return doubleCat;
     }
 
-    public static String getDiff(int diff){
+    public static String getDiffString(int diff){
         switch (diff){
             case 0:
                 return "简单难度";
@@ -53,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+
         tvScore = (TextView)findViewById(R.id.score);
         btnOption = (Button)findViewById(R.id.btn_option);
         btnOption.setOnClickListener(this);
@@ -60,19 +57,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnRestart.setOnClickListener(new MyListener(GameGround.getGameGround()));
         btnStopMu = (Button)findViewById(R.id.btn_stopMu);
         btnStopMu.setOnClickListener(this);
+
         prepareConfig();
+        if (!BGM){
+            btnStopMu.setBackgroundResource(R.drawable.mu_off);
+        }
         sounder = Sounder.getInstance();
         sounder.setContext(this);
-        if (noBGM){
+        if (BGM){
             sounder.initSound();
-            sounder.startBgSound();
-            noBGM = false;
         }
     }
 
+    public static void myPrefClear(){
+        easBest = 88;
+        expBest = 88;
+        norBest =88;
+        myPref.clear();
+    }
+
     private void prepareConfig(){
-        Log.d("Kilo", "MyPref:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         myPref = new MyPref(this);
+        BGM = myPref.getConfig();
         int data[] = myPref.getBestScore();
         for (int i=0; i<3 ;i++){
             switch (i){
@@ -80,19 +86,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (data[i]!=88)
                         easBest = data[i];
                     else
-                        easBest = 87;
+                        easBest = 88;
                     break;
                 case 1:
                     if (data[i]!=88)
                         norBest = data[i];
                     else
-                        norBest = 87;
+                        norBest = 88;
                     break;
                 case 2:
                     if (data[i]!=88)
                         expBest = data[i];
                     else
-                        expBest = 87;
+                        expBest = 88;
                     break;
             }
         }
@@ -144,18 +150,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(new Intent(MainActivity.this,OptionActivity.class),666);
                 break;
             case R.id.btn_stopMu:
-                if (sounder.allowMusic == true){
+                if (BGM == true){
                     btnStopMu.setBackgroundResource(R.drawable.mu_off);
-                    sounder.stopBgSound();
                     sounder.stopClickSound();
                     sounder.stopEndSound();
-                    sounder.allowMusic = false;
+                    BGM = false;
+                    myPref.saveConfig();
                 }
                 else{
                     btnStopMu.setBackgroundResource(R.drawable.mu_on);
-                    sounder.allowMusic = true;
+                    BGM = true;
+                    myPref.saveConfig();
                 }
-                    //sounder.startBgSound();
                 break;
         }
     }

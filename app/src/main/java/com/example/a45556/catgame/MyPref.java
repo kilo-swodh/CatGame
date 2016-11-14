@@ -41,4 +41,19 @@ public class MyPref {
         }
         editor.commit();
     }
+
+    public void saveConfig(){
+        editor.putBoolean("BGM",MainActivity.BGM);
+        editor.commit();
+    }
+
+    public boolean getConfig(){
+        boolean Bgm =  pref.getBoolean("BGM",true);
+        return Bgm;
+    }
+
+    public void clear(){
+        editor.clear();
+        editor.commit();
+    }
 }

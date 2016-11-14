@@ -3,7 +3,6 @@ package com.example.a45556.catgame;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 
@@ -13,9 +12,7 @@ import android.os.Build;
 
 class Sounder {
     private SoundPool soundPool;
-    private MediaPlayer bgPlayer;
     private static Context mContext;
-    public boolean allowMusic =true;
 
     private static Sounder sounder = null;
     public static Sounder getInstance(){
@@ -35,8 +32,6 @@ class Sounder {
     private int ringClick;
     private int ringEnd;
     public void initSound(){
-        bgPlayer = MediaPlayer.create(mContext,R.raw.bg);
-        bgPlayer.setLooping(true);
         if(Build.VERSION.SDK_INT>=21){
             SoundPool.Builder builder = new SoundPool.Builder();
             builder.setMaxStreams(2);
@@ -44,27 +39,21 @@ class Sounder {
             attrBuilder.setLegacyStreamType(AudioManager.STREAM_SYSTEM);
             builder.setAudioAttributes(attrBuilder.build());
             soundPool = builder.build();
+        }else {
+            soundPool = new SoundPool(2,AudioManager.STREAM_SYSTEM,0);
         }
         ringClick = soundPool.load(mContext,R.raw.killing,1);
         ringEnd = soundPool.load(mContext,R.raw.end,0);
     }
 
-    public void startBgSound(){
-        if (allowMusic){
-            if (!bgPlayer.isPlaying()) {
-                bgPlayer.start();
-            }
-        }
-    }
-
     public void startClickSound(){
-        if (allowMusic){
+        if (MainActivity.BGM){
             soundPool.play(ringClick,1,1,2,0,1);
         }
     }
 
     public void startEndSound(){
-        if (allowMusic){
+        if (MainActivity.BGM){
             soundPool.play(ringEnd,1,1,2,0,1);
         }
     }
@@ -75,9 +64,5 @@ class Sounder {
 
     public void stopEndSound(){
         soundPool.stop(ringEnd);
-    }
-
-    public void stopBgSound(){
-        bgPlayer.pause();
     }
 }

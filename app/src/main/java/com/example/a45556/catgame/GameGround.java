@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -28,7 +29,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
 
     int ROW = 9;
     int COL = 9;
-    private int BLOCKS = 11;
+    private int BLOCKS;
     private Dot matrix[][];
     Dot cat;
 
@@ -185,7 +186,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
             win();
         }else if(avaliable.size() == 1){
             moveTo(avaliable.get(0));
-        }else if(justFirst && BLOCKS == 16){
+        }else if(justFirst && BLOCKS == 14){
             moveTo(avaliable.get((int)(Math.random()*1000% avaliable.size())));
             justFirst = false;
         }else {
@@ -233,13 +234,17 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
         MainActivity.saveBest();
         bestScore = MainActivity.getBest();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        if (bestScore[MainActivity.getDiff()] == 87){
+        if (bestScore[MainActivity.getDiff()] == 88){
             builder.setMessage("恭喜你,成功围住了小猫\n你总共用了"+MainActivity.score+
-                    "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff()));
+                    "步\n当前难度为"+MainActivity.getDiffString(MainActivity.getDiff()));
+        }else {
+            Log.d("KiLO", bestScore[MainActivity.getDiff()]+"");
+            builder.setMessage("恭喜你,成功围住了"+MainActivity.getDiffString(MainActivity.getDiff())
+                    +"小猫\n\t\t你总共用了"+MainActivity.score+ "步"+ "\n\t\t\t该难度个人最佳成绩是"
+                    +bestScore[MainActivity.getDiff()]+ "步\n\t\t\t\t打败了全国"+((96-
+                    bestScore[MainActivity.getDiff()])+(int)(MainActivity.getDiff()*1.4))+ "%的人");
         }
-        builder.setMessage("恭喜你,成功围住了小猫\n你总共用了"+MainActivity.score+
-                "步\n当前难度为"+MainActivity.getDiff(MainActivity.getDiff())+
-                "\n该难度个人最佳成绩是"+bestScore[MainActivity.getDiff()]+"步");
+
         builder.setCancelable(false);
         builder.setNegativeButton("退出游戏", new DialogInterface.OnClickListener() {
             @Override
@@ -287,13 +292,13 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private void checkConfig(){
         switch (MainActivity.getDiff()){
             case 0:
-                BLOCKS = 32;                //16
+                BLOCKS = 30;            //14
                 break;
             case 2:
-                BLOCKS = 7;
+                BLOCKS = 6;
                 break;
             default:
-                BLOCKS = 11;
+                BLOCKS = 10;
                 break;
         }
     }

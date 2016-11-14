@@ -3,7 +3,6 @@ package com.example.a45556.catgame;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,15 +10,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 /**
  * Created by 45556 on 2016-11-10.
  */
 
-public class OptionActivity extends AppCompatActivity {
+public class OptionActivity extends BaseActivity {
     private Spinner spinner;
-    private Button btnOk;
-    private Button btnBack;
+    private Button btnOk,btnBack,btnClearPref,btnQuit;
     private CheckBox checkBox1;
     private CheckBox checkBox2;
 
@@ -64,6 +63,24 @@ public class OptionActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
+        btnClearPref = (Button)findViewById(R.id.btn_clearPref);
+        btnClearPref.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.myPrefClear();
+                Toast.makeText(getApplicationContext(),"已清除数据",Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+
+        btnQuit = (Button)findViewById(R.id.btn_quit);
+        btnQuit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ActivityManager.finishAll();
             }
         });
 
