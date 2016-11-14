@@ -21,15 +21,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     public static boolean doubleCat;
     public static boolean BGM ;
+    public static boolean DLC = false;
 
     private Sounder sounder;
 
     public static int getDiff() {
         return diff;
-    }
-
-    public static boolean isDoubleCat() {
-        return doubleCat;
     }
 
     public static String getDiffString(int diff){
@@ -138,7 +135,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 Bundle bundle = data.getBundleExtra("bundle");
                 doubleCat = bundle.getBoolean("doubleCat");
                 diff = bundle.getInt("diff");
-                Toast.makeText(this,"设置成功,下一局开始生效",Toast.LENGTH_SHORT).show();
+                if (doubleCat){
+                    Toast.makeText(this,"喵呜*2",Toast.LENGTH_SHORT).show();
+                    GameGround.getGameGround().restartGame();
+                }
+                else
+                    Toast.makeText(this,"设置成功,下一局开始生效",Toast.LENGTH_SHORT).show();
             }
         }
     }

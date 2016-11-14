@@ -11,6 +11,7 @@ public class Dot {
     public static final int STAUTS_OK = 1;
     public static final int STAUTS_NO = 0;
     public static final int STAUTS_IN = 2;
+    public static final int STAUTS_IN2 = 3;
 
     public int getX() {
         return x;

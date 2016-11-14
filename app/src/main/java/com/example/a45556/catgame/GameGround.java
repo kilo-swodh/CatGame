@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.example.a45556.catgame.MainActivity.DLC;
+
 
 /**
  * Created by 45556 on 2016-11-8.
@@ -31,14 +33,14 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     int COL = 9;
     private int BLOCKS;
     private Dot matrix[][];
-    Dot cat;
+    Dot cat,cat2;
 
     public static GameGround gameGround;
     private static int failCount = 0;
 
     private MyListener myListener;
     private boolean justFirst;
-    private Bitmap bmNO,bmOK,bmCat1,bg;
+    private Bitmap bmNO,bmOK,bmCat1,bmCat2,bg;
     private Sounder sounder;
 
     public GameGround(Context context, AttributeSet attrs) {
@@ -49,10 +51,14 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
         setOnTouchListener(myListener);
         bmNO = BitmapFactory.decodeResource(getResources(),R.drawable.trash);
         bmOK = BitmapFactory.decodeResource(getResources(),R.drawable.grass);
-        bmCat1 = BitmapFactory.decodeResource(getResources(),R.drawable.cat1);
-        bg = BitmapFactory.decodeResource(getResources(),R.drawable.bg);
+        bmCat1 = BitmapFactory.decodeResource(getResources(), R.drawable.cat1);
+        bmCat2 = BitmapFactory.decodeResource(getResources(), R.drawable.cat2);
+        bg = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
         sounder = Sounder.getInstance();
-        initGame();
+        if (MainActivity.doubleCat)
+            initGameD();
+        else
+            initGame();
     }
 
     public Dot getDot(int x,int y){                    //方便访问矩阵数组
@@ -92,8 +98,11 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
                         canvas.drawBitmap(bmCat1,rect,new RectF(dot.getX()*WIDTH +offset,dot.getY()*WIDTH+getDeviation(),
                                 (dot.getX()+1)*WIDTH +offset,(dot.getY()+1)*WIDTH+getDeviation()),mPaint);
                         break;
+                    case Dot.STAUTS_IN2:
+                        canvas.drawBitmap(bmCat2,rect,new RectF(dot.getX()*WIDTH +offset,dot.getY()*WIDTH+getDeviation(),
+                                (dot.getX()+1)*WIDTH +offset,(dot.getY()+1)*WIDTH+getDeviation()),mPaint);
+                        break;
                 }
-
             }
         }
         getHolder().unlockCanvasAndPost(canvas);
@@ -146,7 +155,8 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
         Dot oriDot = dot,nextDot;
         while (true){
             nextDot = getNeighbor(oriDot,dir);
-            if (nextDot.getStauts() == Dot.STAUTS_NO){
+            if (nextDot.getStauts() == Dot.STAUTS_NO || nextDot.getStauts() == Dot.STAUTS_IN
+                    || nextDot.getStauts() == Dot.STAUTS_IN2){
                 return distance*-1;
             }
             if (nextDot.isEdge(COL,ROW)){
@@ -186,7 +196,7 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
             win();
         }else if(avaliable.size() == 1){
             moveTo(avaliable.get(0));
-        }else if(justFirst && BLOCKS == 14){
+        }else if(justFirst && BLOCKS == 15){
             moveTo(avaliable.get((int)(Math.random()*1000% avaliable.size())));
             justFirst = false;
         }else {
@@ -219,13 +229,17 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
 
     private void lose(){
         failCount++;
-        if (failCount == 4){
-            Toast.makeText(getContext(),"tip:点击左下角可以调整难度",Toast.LENGTH_SHORT).show();
+        if (failCount == 1){
+            Toast.makeText(getContext(),"警惕的小猫已经先行一步",Toast.LENGTH_SHORT).show();
+        } else if (failCount == 4){
+            Toast.makeText(getContext(),"tip:点击左下角可调节难度",Toast.LENGTH_SHORT).show();
+        }else if (failCount == 10){
+            Toast.makeText(getContext(),"tip:点击右下角可以刷新小猫的警惕",Toast.LENGTH_SHORT).show();
         }else{
             sounder.startEndSound();
             Toast.makeText(getContext(),"You Lose",Toast.LENGTH_SHORT).show();
         }
-        initGame();
+        restartGame();
     }
 
     private int[] bestScore;
@@ -284,7 +298,10 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     };
 
     public void restartGame(){
-        initGame();
+        if (MainActivity.doubleCat)
+            initGameD();
+        else
+            initGame();
         redraw();
         MainActivity.tvScore.setText("0步");
     }
@@ -292,13 +309,13 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
     private void checkConfig(){
         switch (MainActivity.getDiff()){
             case 0:
-                BLOCKS = 30;            //14
+                BLOCKS = 15;
                 break;
             case 2:
-                BLOCKS = 6;
+                BLOCKS = 7;
                 break;
             default:
-                BLOCKS = 10;
+                BLOCKS = 11;
                 break;
         }
     }
@@ -339,5 +356,189 @@ public class GameGround extends SurfaceView implements View.OnClickListener{
 
     public static GameGround getGameGround(){
         return gameGround;
+    }
+
+    //双猫相关方法
+    public void moveD(){
+        if (cat.isEdge(COL,ROW) || cat2.isEdge(COL,ROW)){
+            lose();
+        }
+        List<Dot> avaliable = new ArrayList<>();
+        List<Dot> positive = new ArrayList<>();
+        HashMap<Dot,Integer> allLine = new HashMap<>();
+        List<Dot> avaliable2 = new ArrayList<>();
+        List<Dot> positive2 = new ArrayList<>();
+        HashMap<Dot,Integer> allLine2 = new HashMap<>();
+        for (int i=1 ; i<7 ;i++){
+            Dot nDot = getNeighbor(cat,i);
+            if (nDot.getStauts() == Dot.STAUTS_OK){
+                avaliable.add(nDot);
+                allLine.put(nDot,i);
+                if (getDistance(nDot,i) > 0 ){
+                    positive.add(nDot);
+                }
+            }
+            Dot nDot2 = getNeighbor(cat2,i);
+            if (nDot2.getStauts() == Dot.STAUTS_OK){
+                avaliable2.add(nDot2);
+                allLine2.put(nDot2,i);
+                if (getDistance(nDot2,i) > 0 ){
+                    positive2.add(nDot2);
+                }
+            }
+        }
+        MainActivity.score++;
+        if (avaliable.size() == 0 && avaliable2.size() == 0){
+            winD();
+        }else if (avaliable.size() == 0 && avaliable2.size() == 1){
+            moveToD(avaliable2.get(0),2);
+        }else if (avaliable.size() == 1 && avaliable2.size() == 0){
+            moveToD(avaliable.get(0),1);
+        }else if (avaliable.size() == 1 && avaliable2.size() == 1){
+            if (Math.random() > 0.5)
+                moveToD(avaliable.get(0),1);
+            else
+                moveToD(avaliable2.get(0),2);
+        }else {
+            Dot bestDot = null;
+            int bestCat = 1;
+            if (positive.size() != 0 && positive2.size() != 0){
+                int min = 99;
+                for (int i =0; i<positive.size();i++){
+                    int temp = getDistance(positive.get(i),allLine.get(positive.get(i)));
+                    if (temp < min){
+                        min = temp;
+                        bestDot = positive.get(i);
+                        bestCat = 1;
+                    }
+                }
+                for (int i =0; i<positive2.size();i++){
+                    int temp = getDistance(positive2.get(i),allLine2.get(positive2.get(i)));
+                    if (temp < min){
+                        min = temp;
+                        bestDot = positive2.get(i);
+                        bestCat = 2;
+                    }
+                }
+            }else if (positive.size() != 0 || positive2.size() != 0){
+                if (positive.size()> positive2.size()){
+                    int min = 99;
+                    for (int i =0; i<positive.size();i++){
+                        int temp = getDistance(positive.get(i),allLine.get(positive.get(i)));
+                        if (temp < min){
+                            min = temp;
+                            bestDot = positive.get(i);
+                            bestCat = 1;
+                        }
+                    }
+                }else {
+                    int min = 99;
+                    for (int i =0; i<positive2.size();i++){
+                        int temp = getDistance(positive2.get(i),allLine2.get(positive2.get(i)));
+                        if (temp < min){
+                            min = temp;
+                            bestDot = positive2.get(i);
+                            bestCat = 2;
+                        }
+                    }
+                }
+            }else {
+                int max = 0;
+                for (int i = 0;i <avaliable.size();i++){
+                    int temp = getDistance(avaliable.get(i),allLine.get(avaliable.get(i)));
+                    if (temp < max){
+                        max = temp;
+                        bestDot = avaliable.get(i);
+                        bestCat = 1;
+                    }
+                }
+                for (int i = 0;i <avaliable2.size();i++){
+                    int temp = getDistance(avaliable2.get(i),allLine2.get(avaliable2.get(i)));
+                    if (temp < max){
+                        max = temp;
+                        bestDot = avaliable2.get(i);
+                        bestCat = 2;
+                    }
+                }
+            }
+            if (bestDot == null){
+                if (Math.random() > 0.5)
+                    moveToD(avaliable.get((int)(Math.random()*1000% avaliable.size())),1);
+                else
+                    moveToD(avaliable2.get((int)(Math.random()*1000% avaliable2.size())),2);
+            }else
+                moveToD(bestDot,bestCat);
+        }
+    }
+
+    public void moveToD(Dot dot,int i){
+        switch (i){
+            case 1:
+                dot.setStauts(Dot.STAUTS_IN);
+                getDot(cat.getX(),cat.getY()).setStauts(Dot.STAUTS_OK);
+                cat.setXY(dot.getX(),dot.getY());
+                break;
+            case 2:
+                dot.setStauts(Dot.STAUTS_IN2);
+                getDot(cat2.getX(),cat2.getY()).setStauts(Dot.STAUTS_OK);
+                cat2.setXY(dot.getX(),dot.getY());
+        }
+    }
+
+
+    private void winD(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("恭喜你,成功围住了基友猫\n你总共用了"+MainActivity.score+
+                    "步\n当前难度为"+MainActivity.getDiffString(MainActivity.getDiff()));
+        builder.setCancelable(false);
+        builder.setNegativeButton("退出游戏", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ActivityManager.finishAll();
+            }
+        });
+        builder.setPositiveButton("解锁点什么", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (MainActivity.getDiff() > 0){
+                    Toast.makeText(getContext(),"新功能现在已经可以使用了",Toast.LENGTH_SHORT).show();
+                    DLC = true;
+                }else {
+                    Toast.makeText(getContext(),"解锁失败,试试更高难度吧",Toast.LENGTH_SHORT).show();
+                }
+                restartGame();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void initGameD(){
+        checkConfig();
+        matrix = new Dot[ROW][COL];
+        for (int i =0; i< ROW ;i++){
+            for (int j =0; j<COL; j++){
+                matrix[i][j] = new Dot(j,i);
+            }
+        }
+        for (int i =0; i< ROW ;i++){
+            for (int j =0; j<COL; j++){
+                matrix[i][j].stauts = Dot.STAUTS_OK;
+            }
+        }
+        MainActivity.score = 0;
+        cat = new Dot(ROW/2,COL/2);
+        cat2 = new Dot(ROW/2+1,COL/2);
+
+        getDot(ROW/2,COL/2).setStauts(Dot.STAUTS_IN);
+        getDot(ROW/2,COL/2+1).setStauts(Dot.STAUTS_IN2);
+        for (int i = 0;i <BLOCKS;){
+            int x = (int)((Math.random()*1000)%COL);
+            int y = (int)((Math.random()*1000)%ROW);
+            if (getDot(y,x).getStauts() == Dot.STAUTS_OK){
+                getDot(y,x).setStauts(Dot.STAUTS_NO);
+                i++;
+            }
+        }
     }
 }

@@ -36,7 +36,11 @@ public class MyListener implements View.OnTouchListener,View.OnClickListener{
                 if ( x+1 <= gameGround.COL && y+1 <= gameGround.ROW && motionEvent.getY()> DEVIATION) {
                     if (gameGround.getDot(x, y).getStauts() == Dot.STAUTS_OK) {
                         gameGround.getDot(x, y).setStauts(Dot.STAUTS_NO);
-                        gameGround.move();
+                        if(MainActivity.doubleCat){
+                            gameGround.moveD();
+                        }else {
+                            gameGround.move();
+                        }
                         MainActivity.tvScore.setText(MainActivity.score+"步");
                         gameGround.redraw();
                     }
